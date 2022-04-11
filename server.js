@@ -81,10 +81,22 @@ if(args.debug) {
   })
 }
 
+app.get('/app/log/access', (req, res) => {
+  const stmt = logdb.prepare('SELECT * FROM accesslog').all()
+  res.status(200).json(stmt)
+
+})
+
+app.get('/app/error', (req, res) => {
+throw new error ('Error test successful')
+})
+
 
 app.get("/app/", (req, res, next) => {
   res.json({"message": "Your API works! (200)"});
   res.status(200);
+  res.writeHead(res.statusCode, {'Content-Type' : 'text/plain'})
+  res.end(res.statusCode + ' ' + res.statusMessage)
 })
 
 app.post('/app/new/user', (req, res, next) => {
