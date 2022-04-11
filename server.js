@@ -1,6 +1,5 @@
 const express = require('express')
 const app = express()
-
 const morgan = require('morgan')
 const logdb = require('./database')
 const fs = require('fs')
@@ -12,15 +11,11 @@ app.use(express.json());
 // Require minimist module
 const args = require('minimist')(process.argv.slice(2))
 
-// See what is stored in the object produced by minimist
-console.log(args)
-
 const port = args.port || process.env.PORT || 5555
 
 const server = app.listen(port, () => {
     console.log('App is runnin on %port%'.replace('%port%', port))
 })
-
 
 // Store help text 
 const help = (`
@@ -80,17 +75,6 @@ if(args.debug) {
     throw new Error("Error test successful")
   })
 }
-
-app.get('/app/log/access', (req, res) => {
-  const stmt = logdb.prepare('SELECT * FROM accesslog').all()
-  res.status(200).json(stmt)
-
-})
-
-app.get('/app/error', (req, res) => {
-throw new error ('Error test successful')
-})
-
 
 app.get("/app/", (req, res, next) => {
   res.json({"message": "Your API works! (200)"});
