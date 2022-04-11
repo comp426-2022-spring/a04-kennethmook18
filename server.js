@@ -17,7 +17,6 @@ const server = app.listen(port, () => {
     console.log('App is runnin on %port%'.replace('%port%', port))
 })
 
-// Store help text 
 const help = (`
 server.js [options]
 
