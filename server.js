@@ -12,7 +12,7 @@ app.use(express.json());
 const args = require('minimist')(process.argv.slice(2))
 
 const port = args.port || process.env.PORT || 5555
-const DBUG = args.debug
+const DBUG = args.debug || false
 
 const server = app.listen(port, () => {
     console.log('App is runnin on %port%'.replace('%port%', port))
