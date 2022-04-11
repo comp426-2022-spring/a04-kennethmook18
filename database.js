@@ -1,5 +1,3 @@
-"use strict";
-
 // Require better-sqlite.
 const Database = require('better-sqlite3');
 
