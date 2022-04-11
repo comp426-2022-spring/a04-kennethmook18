@@ -11,7 +11,7 @@ app.use(express.json());
 // Require minimist module
 const args = require('minimist')(process.argv.slice(2))
 
-const port = (args.port >= 1 && args.port <= 65535) ? args.port : 5555
+const port = args.port || process.env.PORT || 5555
 
 const server = app.listen(port, () => {
     console.log('App is runnin on %port%'.replace('%port%', port))
@@ -44,7 +44,6 @@ if(args.log != "false") {
   const accesslog = fs.createWriteStream('access.log', { flags: 'a'})
   app.use(morgan('combined', {stream: accesslog}))
 }
-
 
 app.use((req, res, next) => {
   let logdata = {
@@ -82,19 +81,6 @@ if(args.debug) {
   })
 }
 
-app.get('app/log/access', (req, res) => {
-  try {
-    const stmt = logdb.prepare('SELECT * FROM accesslog').all()
-    res.status(200).json(stmt)
-  } catch (e) {
-    console.error(e)
-  }
-})
-
-app.get('/app/error', (req, res) => {
-  throw new Error("Error test successful")
-})
-
 app.get("/app/", (req, res, next) => {
   res.json({"message": "Your API works! (200)"});
   res.status(200);
@@ -124,7 +110,7 @@ app.get('/app/users', (req, res) => {
 app.get('/app/user/:id', (req, res) => {
   try {
     const stmt = logdb.prepare('SELECT * FROM userinfo WHERE id = ?').get(req.params.id);
-    res.status(200).send(stmt)
+    res.status(200).json(stmt)
   } catch (e) {
     console.error(e)
   }
