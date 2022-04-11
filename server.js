@@ -40,10 +40,11 @@ if (args.help || args.h) {
     process.exit(0)
 }
 
-if(args.log != false) {
+if(args.log != "false") {
   const accesslog = fs.createWriteStream('access.log', { flags: 'a'})
   app.use(morgan('combined', {stream: accesslog}))
 }
+
 
 app.use((req, res, next) => {
   let logdata = {
@@ -65,11 +66,17 @@ app.use((req, res, next) => {
   next()
 })
 
+
 if(args.debug) {
   app.get('app/log/access', (req, res) => {
-      const stmt = logdb.prepare('SELECT * FROM accesslog').all()
-      res.status(200).json(stmt)
-  })
+  try {
+    const stmt = logdb.prepare('SELECT * FROM accesslog').all()
+    res.status(200).json(stmt)
+  } catch (e) {
+    console.error(e)
+  }
+})
+
   app.get('/app/error', (req, res) => {
     throw new Error("Error test successful")
   })
