@@ -66,7 +66,7 @@ app.use((req, res, next) => {
 })
 
 
-if(args.debug) {
+if(args.debug != "false") {
   app.get('app/log/access', (req, res) => {
   try {
     const stmt = logdb.prepare('SELECT * FROM accesslog').all()
