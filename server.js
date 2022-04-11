@@ -12,6 +12,7 @@ app.use(express.json());
 const args = require('minimist')(process.argv.slice(2))
 
 const port = args.port || process.env.PORT || 5555
+const DBUG = args.debug
 
 const server = app.listen(port, () => {
     console.log('App is runnin on %port%'.replace('%port%', port))
@@ -66,7 +67,7 @@ app.use((req, res, next) => {
 })
 
 
-if(args.debug != false) {
+if(DBUG) {
   app.get('app/log/access', (req, res) => {
   try {
     const stmt = logdb.prepare('SELECT * FROM accesslog').all()
@@ -74,11 +75,11 @@ if(args.debug != false) {
   } catch (e) {
     console.error(e)
   }
-})
+  });
 
   app.get('/app/error', (req, res) => {
     throw new Error("Error test successful")
-  })
+  });
 }
 
 app.get("/app/", (req, res, next) => {
@@ -140,7 +141,3 @@ app.use(function(req, res){
     res.json({"message": "Endpoint not found. (404)"});
     res.status(404)
 }) 
-
-app.get('/app/echo/:number',  (req, res) => {
-  res.status(200).json({ 'message': req.params.number})
-})
