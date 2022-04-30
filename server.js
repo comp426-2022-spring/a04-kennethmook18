@@ -12,7 +12,6 @@ app.use(express.json());
 const args = require('minimist')(process.argv.slice(2))
 
 const port = args.port || process.env.PORT || 5555
-const DBUG = args.debug || false
 
 const server = app.listen(port, () => {
     console.log('App is runnin on %port%'.replace('%port%', port))
@@ -67,15 +66,15 @@ app.use((req, res, next) => {
 })
 
 
-if(DBUG == true) {
-  app.get("app/log/access", (req, res) => {
-  try {
-    const stmt = logdb.prepare('SELECT * FROM accesslog').all()
-    res.status(200).json(stmt)
-  } catch (e) {
-    console.error(e)
-  }
-  });
+if(args.debug) {
+  app.get("/app/log/access", (req, res, next) => {
+    try {
+      const stmt = logdb.prepare('SELECT * FROM accesslog').all();
+      res.status(200).json(stmt)
+    } catch (e) {
+      console.error(e)
+    }
+  })
 
   app.get("/app/error", (req, res) => {
     throw new Error("Error test successful")
@@ -83,10 +82,7 @@ if(DBUG == true) {
 }
 
 app.get("/app/", (req, res, next) => {
-  res.json({"message": "Your API works! (200)"});
-  res.status(200);
-  res.writeHead(res.statusCode, {'Content-Type' : 'text/plain'})
-  res.end(res.statusCode + ' ' + res.statusMessage)
+  res.status(200).json({"message": "Your API works! (200)"});
 })
 
 app.post("/app/new/user", (req, res, next) => {
