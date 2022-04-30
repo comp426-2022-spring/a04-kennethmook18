@@ -14,7 +14,8 @@ let row = stmt.get();
 if (row === undefined) {
 
 // Set a const that will contain your SQL commands to initialize the database.
-    const sqlInit = `CREATE TABLE accesslog ( id INTEGER NOT NULL PRIMARY KEY, remoteaddr TEXT, remoteuser TEXT, time INTEGER, method TEXT, url TEXT, protocol TEXT, httpversion TEXT, status INTEGER, referer TEXT, useragent TEXT);`;
+    const sqlInit = 
+        `CREATE TABLE accesslog ( id INTEGER PRIMARY KEY, remoteaddr VARCHAR, remoteuser VARCHAR, time INTEGER, method VARCHAR, url VARCHAR, protocol VARCHAR, httpversion VARCHAR, status INTEGER, referer VARCHAR, useragent VARCHAR);`;
 
 // Execute SQL commands that we just wrote above.
     logdb.exec(sqlInit);

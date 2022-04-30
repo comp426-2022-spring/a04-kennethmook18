@@ -41,7 +41,7 @@ if (args.help || args.h) {
     process.exit(0)
 }
 
-if(args.log != "false") {
+if(args.log == true) {
   const accesslog = fs.createWriteStream('access.log', { flags: 'a'})
   app.use(morgan('combined', {stream: accesslog}))
 }
@@ -67,8 +67,8 @@ app.use((req, res, next) => {
 })
 
 
-if(DBUG != false) {
-  app.get('app/log/access', (req, res) => {
+if(DBUG == true) {
+  app.get("app/log/access", (req, res) => {
   try {
     const stmt = logdb.prepare('SELECT * FROM accesslog').all()
     res.status(200).json(stmt)
@@ -77,7 +77,7 @@ if(DBUG != false) {
   }
   });
 
-  app.get('/app/error', (req, res) => {
+  app.get("/app/error", (req, res) => {
     throw new Error("Error test successful")
   });
 }
@@ -89,7 +89,7 @@ app.get("/app/", (req, res, next) => {
   res.end(res.statusCode + ' ' + res.statusMessage)
 })
 
-app.post('/app/new/user', (req, res, next) => {
+app.post("/app/new/user", (req, res, next) => {
   let data = {
     user: req.body.username,
     pass: req.body.password
@@ -99,7 +99,7 @@ app.post('/app/new/user', (req, res, next) => {
   res.status(200).json(info)
 })
 
-app.get('/app/users', (req, res) => {
+app.get("/app/users", (req, res) => {
   try {
     const stmt = logdb.prepare('SELECT * FROM userinfo').all()
     res.status(200).json(stmt)
@@ -108,7 +108,7 @@ app.get('/app/users', (req, res) => {
   }
 })
 
-app.get('/app/user/:id', (req, res) => {
+app.get("/app/user/:id", (req, res) => {
   try {
     const stmt = logdb.prepare('SELECT * FROM userinfo WHERE id = ?').get(req.params.id);
     res.status(200).json(stmt)
@@ -117,7 +117,7 @@ app.get('/app/user/:id', (req, res) => {
   }
 })
 
-app.patch('/app/update/user/:id', (req, res) => {
+app.patch("/app/update/user/:id", (req, res) => {
   let data = {
     user: req.body.username,
     pass: req.body.password
@@ -127,7 +127,7 @@ app.patch('/app/update/user/:id', (req, res) => {
   res.status(200).json(info)
 })
 
-app.delete('/app/delete/user/:id', (req, res) => {
+app.delete("/app/delete/user/:id", (req, res) => {
   try {
     const stmt = logdb.prepare('DELETE * FROM userinfo WHERE id = ?').get(req.params.id);
     const info = stmt.run(req.params.id)
