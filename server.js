@@ -13,6 +13,51 @@ const args = require('minimist')(process.argv.slice(2))
 
 const port = args.port || process.env.PORT || 5555
 
+//CoinFlip functions 
+function coinFlip() {
+  return Math.random() > 0.5 ? ('heads') : ('tails');
+}
+
+function coinFlips(flips) {
+  var tosses = []
+  for (let i = 0; i < flips; i++) {
+    tosses[i] = coinFlip();
+  }
+  return tosses
+}
+
+function countFlips(array) {
+  let heads_sum = 0;
+  let tails_sum = 0;
+  for (let i = 0; i < array.length; i++) {
+    if (array[i] == 'heads') {
+      heads_sum += 1;
+    } else if (array[i] == 'tails') {
+      tails_sum += 1;
+    }
+  }
+
+  if (heads_sum == 0 || tails_sum == 0) {
+    if (heads_sum == 0) {
+      return "{ tails: " + tails_sum + " }";
+    } else if (tails_sum == 0) {
+      return "{ heads: " + heads_sum + " }";
+    }
+  }
+  
+  return {"heads": heads_sum, "tails": tails_sum };
+}
+
+function flipACoin(call) {
+  var flip = coinFlip();
+  if (call == flip) {
+    var status = 'win'
+  } else {
+    var status = 'lose'
+  }
+  return  {"call": call, "flip": flip, "result": status };
+}
+
 const server = app.listen(port, () => {
     console.log('App is runnin on %port%'.replace('%port%', port))
 })
@@ -81,59 +126,31 @@ if(args.debug) {
   });
 }
 
-app.get("/app/", (req, res, next) => {
-  res.status(200).json({"message": "Your API works! (200)"});
-})
+app.get('/app/', (req, res) => {
+  res.statusCode = 200; 
+  res.statusMessage = 'OK';
+  res.writeHead(res.statusCode, { 'Content-Type': 'text/plain' });
+  res.end(res.statusCode + ' ' + res.statusMessage);
+});
 
-app.post("/app/new/user", (req, res, next) => {
-  let data = {
-    user: req.body.username,
-    pass: req.body.password
-  }
-  const stmt = logdb.prepare('INSERT INTO userinfo (username, password) VALUES (?, ?)');
-  const info = stmt.run(data.user, data.pass)
-  res.status(200).json(info)
-})
 
-app.get("/app/users", (req, res) => {
-  try {
-    const stmt = logdb.prepare('SELECT * FROM userinfo').all()
-    res.status(200).json(stmt)
-  } catch (e) {
-      console.error(e)
-  }
-})
+app.get('/app/flip/', (req, res) => {
+  let flip = coinFlip();
+  res.status(200).json({ "flip": flip });
+});
 
-app.get("/app/user/:id", (req, res) => {
-  try {
-    const stmt = logdb.prepare('SELECT * FROM userinfo WHERE id = ?').get(req.params.id);
-    res.status(200).json(stmt)
-  } catch (e) {
-    console.error(e)
-  }
-})
 
-app.patch("/app/update/user/:id", (req, res) => {
-  let data = {
-    user: req.body.username,
-    pass: req.body.password
-  }
-  const stmt = logdb.prepare('UPDATE userinfo SET username = COALESCE(?,username), password = COALESCE(?, password) WHERE id = ?')
-  const info = stmt.run(data.user, data.pass, req.params.id)
-  res.status(200).json(info)
-})
+app.get('/app/flips/:number', (req, res) => {
+  let results = coinFlips(req.params.number);
+  let summary = countFlips(results);
+  res.status(200).json({ "results": results, "summary": summary });
+});
 
-app.delete("/app/delete/user/:id", (req, res) => {
-  try {
-    const stmt = logdb.prepare('DELETE * FROM userinfo WHERE id = ?').get(req.params.id);
-    const info = stmt.run(req.params.id)
-    res.status(200).json(info)
-  } catch (e) {
-    console.error(e)
-  }
+app.get('/app/flip/call/:guess(heads|tails)/', (req, res, next) => {
+  const guess = flipACoin(req.params.guess)
+  res.status(200).json(guess)
 })
 
 app.use(function(req, res){
-    res.json({"message": "Endpoint not found. (404)"});
-    res.status(404)
+    res.status(404).json({"message": "Endpoint not found. (404)"});
 }) 
